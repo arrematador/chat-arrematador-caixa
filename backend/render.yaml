@@ -1,0 +1,19 @@
+# Arquivo de configuração para deploy no Render.com
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: arrematador-chat-agent
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false  # Definir manualmente no dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # Definir manualmente no dashboard
+      - key: WHATSAPP_NUMBER
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true

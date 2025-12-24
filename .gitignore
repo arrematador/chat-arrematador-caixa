@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Reunião (arquivo pessoal)
+Reuniao/
