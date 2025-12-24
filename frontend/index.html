@@ -38,284 +38,219 @@
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
-  <!-- Banner Carrossel -->
+  <!-- Banner Carrossel com Imagens -->
   <style>
-    .banner-carousel {
+    .hero-carousel {
       width: 100%;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
-      overflow: hidden;
       position: relative;
-      z-index: 9999;
-      min-height: 48px;
+      overflow: hidden;
+      background: #0d1b2a;
     }
-    .banner-carousel-inner {
+    .hero-carousel-inner {
       display: flex;
       transition: transform 0.5s ease-in-out;
       width: 100%;
     }
-    .banner-slide {
+    .hero-slide {
       min-width: 100%;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 50px;
-      box-sizing: border-box;
+      position: relative;
     }
-    .banner-slide a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      text-decoration: none;
-      color: white;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
+    .hero-slide a {
+      display: block;
       width: 100%;
-      max-width: 1200px;
+      text-decoration: none;
     }
-    .banner-slide a:hover {
-      opacity: 0.9;
-    }
-    .banner-icon {
-      width: 24px;
-      height: 24px;
-      min-width: 24px;
-      min-height: 24px;
-      flex-shrink: 0;
+    .hero-slide img {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: cover;
       display: block;
     }
-    .banner-text {
-      text-align: center;
-      color: white;
-      white-space: nowrap;
-    }
-    .banner-text strong {
-      color: #f97316;
-    }
-    .banner-arrow {
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      min-width: 28px;
-      min-height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .banner-nav {
+    .hero-nav {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
       border: none;
       color: white;
-      width: 32px;
-      height: 32px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10000;
-      transition: background 0.3s;
+      z-index: 10;
+      transition: all 0.3s;
     }
-    .banner-nav:hover {
-      background: rgba(255,255,255,0.3);
+    .hero-nav:hover {
+      background: rgba(255,255,255,0.4);
+      transform: translateY(-50%) scale(1.1);
     }
-    .banner-nav.prev { left: 10px; }
-    .banner-nav.next { right: 10px; }
-    .banner-dots {
+    .hero-nav.prev { left: 20px; }
+    .hero-nav.next { right: 20px; }
+    .hero-dots {
       position: absolute;
-      bottom: 4px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 6px;
+      gap: 10px;
+      z-index: 10;
     }
-    .banner-dot {
-      width: 6px;
-      height: 6px;
+    .hero-dot {
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.4);
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s;
+      border: 2px solid transparent;
     }
-    .banner-dot.active {
+    .hero-dot:hover {
+      background: rgba(255,255,255,0.6);
+    }
+    .hero-dot.active {
       background: #f97316;
+      border-color: white;
+      transform: scale(1.2);
     }
     @media (max-width: 768px) {
-      .banner-carousel {
-        min-height: 44px;
+      .hero-slide img {
+        max-height: 300px;
+        object-fit: cover;
+        object-position: center;
       }
-      .banner-slide a {
-        font-size: 11px;
-        gap: 6px;
+      .hero-nav {
+        width: 36px;
+        height: 36px;
       }
-      .banner-text {
-        white-space: normal;
-        line-height: 1.3;
+      .hero-nav.prev { left: 10px; }
+      .hero-nav.next { right: 10px; }
+      .hero-dots {
+        bottom: 10px;
+        gap: 8px;
       }
-      .banner-icon {
-        width: 18px;
-        height: 18px;
-        min-width: 18px;
-        min-height: 18px;
-      }
-      .banner-arrow {
-        display: none;
-      }
-      .banner-nav {
-        width: 24px;
-        height: 24px;
-      }
-      .banner-slide {
-        padding: 10px 35px;
+      .hero-dot {
+        width: 8px;
+        height: 8px;
       }
     }
   </style>
 
-  <div class="banner-carousel" id="bannerCarousel">
-    <button class="banner-nav prev" onclick="prevBanner()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="hero-carousel" id="heroCarousel">
+    <button class="hero-nav prev" onclick="prevHero()" aria-label="Anterior">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
     </button>
     
-    <div class="banner-carousel-inner" id="bannerInner">
+    <div class="hero-carousel-inner" id="heroInner">
       <!-- Banner 1: Plano da Virada -->
-      <div class="banner-slide">
+      <div class="hero-slide">
         <a href="https://brunolucarelli.com.br/inscricao-plano-acxh" target="_blank" rel="noopener">
-          <svg class="banner-icon" viewBox="0 0 24 24" fill="#f97316">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          <span class="banner-text"><strong>Plano da Virada</strong> - O Plano de Execução que vai Dobrar seu Patrimônio em 2026</span>
-          <span class="banner-arrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
+          <img src="https://www.arrematadorcaixa.com.br/lovable-uploads/f5ca15ba-afab-4ef9-b01f-8bca2ca57a32.png" alt="Plano da Virada - O Plano de Execução que vai Dobrar seu Patrimônio em 2026" loading="eager">
         </a>
       </div>
       
-      <!-- Banner 2: Grupo WhatsApp -->
-      <div class="banner-slide">
-        <a href="https://chat.whatsapp.com/HCacckWV6tmGFZzwuP0Ofh?mode=wwt" target="_blank" rel="noopener">
-          <svg class="banner-icon" viewBox="0 0 24 24" fill="#25D366">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-          </svg>
-          <span class="banner-text"><strong>Arrematador Caixa News</strong> - Grupo WhatsApp com novidades e oportunidades da Caixa</span>
-          <span class="banner-arrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
-        </a>
-      </div>
-      
-      <!-- Banner 3: Canal YouTube -->
-      <div class="banner-slide">
-        <a href="https://www.youtube.com/@BrunoLucarelli" target="_blank" rel="noopener">
-          <svg class="banner-icon" viewBox="0 0 24 24" fill="#FF0000">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
-          <span class="banner-text"><strong>Canal no YouTube</strong> - Aprenda tudo sobre leilões e arrematação</span>
-          <span class="banner-arrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
-        </a>
-      </div>
-      
-      <!-- Banner 4: Imobiliária Credenciada -->
-      <div class="banner-slide">
+      <!-- Banner 2: Arrematador Caixa -->
+      <div class="hero-slide">
         <a href="https://www.arrematadorcaixa.com.br/imoveis" target="_blank" rel="noopener">
-          <svg class="banner-icon" viewBox="0 0 24 24" fill="#f97316">
-            <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
-          </svg>
-          <span class="banner-text"><strong>Arrematador Caixa</strong> - Referência Nacional como Imobiliária Credenciada na Venda de Imóveis CAIXA</span>
-          <span class="banner-arrow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </span>
+          <img src="https://www.arrematadorcaixa.com.br/lovable-uploads/banner-arrematador-caixa.png" alt="Arrematador Caixa - Referência Nacional como Imobiliária Credenciada" loading="lazy">
+        </a>
+      </div>
+      
+      <!-- Banner 3: WhatsApp -->
+      <div class="hero-slide">
+        <a href="https://chat.whatsapp.com/HCacckWV6tmGFZzwuP0Ofh?mode=wwt" target="_blank" rel="noopener">
+          <img src="https://www.arrematadorcaixa.com.br/lovable-uploads/d3e82b53-8c51-406e-b2f4-e68bf6b5b858.png" alt="Arrematador Caixa News - Grupo WhatsApp" loading="lazy">
+        </a>
+      </div>
+      
+      <!-- Banner 4: YouTube -->
+      <div class="hero-slide">
+        <a href="https://www.youtube.com/@BrunoLucarelli" target="_blank" rel="noopener">
+          <img src="https://www.arrematadorcaixa.com.br/lovable-uploads/3e8f2ddd-af22-4d03-9e96-b3f39fb70825.png" alt="Canal no YouTube - Aprenda sobre leilões" loading="lazy">
         </a>
       </div>
     </div>
     
-    <button class="banner-nav next" onclick="nextBanner()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <button class="hero-nav next" onclick="nextHero()" aria-label="Próximo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M9 18l6-6-6-6"/>
       </svg>
     </button>
     
-    <div class="banner-dots" id="bannerDots">
-      <span class="banner-dot active" onclick="goToBanner(0)"></span>
-      <span class="banner-dot" onclick="goToBanner(1)"></span>
-      <span class="banner-dot" onclick="goToBanner(2)"></span>
-      <span class="banner-dot" onclick="goToBanner(3)"></span>
+    <div class="hero-dots" id="heroDots">
+      <span class="hero-dot active" onclick="goToHero(0)"></span>
+      <span class="hero-dot" onclick="goToHero(1)"></span>
+      <span class="hero-dot" onclick="goToHero(2)"></span>
+      <span class="hero-dot" onclick="goToHero(3)"></span>
     </div>
   </div>
 
   <script>
     (function() {
-      var currentBanner = 0;
-      var totalBanners = 4;
+      var currentSlide = 0;
+      var totalSlides = 4;
       var autoPlayInterval;
 
-      function updateBanner() {
-        var inner = document.getElementById('bannerInner');
-        var dots = document.querySelectorAll('.banner-dot');
-        inner.style.transform = 'translateX(-' + (currentBanner * 100) + '%)';
+      function updateHero() {
+        var inner = document.getElementById('heroInner');
+        var dots = document.querySelectorAll('.hero-dot');
+        if (inner) {
+          inner.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+        }
         dots.forEach(function(dot, index) {
-          dot.classList.toggle('active', index === currentBanner);
+          dot.classList.toggle('active', index === currentSlide);
         });
       }
 
-      window.nextBanner = function() {
-        currentBanner = (currentBanner + 1) % totalBanners;
-        updateBanner();
+      window.nextHero = function() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateHero();
         resetAutoPlay();
       };
 
-      window.prevBanner = function() {
-        currentBanner = (currentBanner - 1 + totalBanners) % totalBanners;
-        updateBanner();
+      window.prevHero = function() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateHero();
         resetAutoPlay();
       };
 
-      window.goToBanner = function(index) {
-        currentBanner = index;
-        updateBanner();
+      window.goToHero = function(index) {
+        currentSlide = index;
+        updateHero();
         resetAutoPlay();
       };
 
       function resetAutoPlay() {
         clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(window.nextBanner, 5000);
+        autoPlayInterval = setInterval(window.nextHero, 5000);
       }
 
-      // Auto-play
-      autoPlayInterval = setInterval(window.nextBanner, 5000);
+      // Auto-play a cada 5 segundos
+      autoPlayInterval = setInterval(window.nextHero, 5000);
 
-      // Touch/Swipe support
+      // Touch/Swipe support para mobile
       var startX = 0;
-      var carousel = document.getElementById('bannerCarousel');
-      carousel.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-      });
-      carousel.addEventListener('touchend', function(e) {
-        var endX = e.changedTouches[0].clientX;
-        var diff = startX - endX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) window.nextBanner();
-          else window.prevBanner();
-        }
-      });
+      var carousel = document.getElementById('heroCarousel');
+      if (carousel) {
+        carousel.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+        });
+        carousel.addEventListener('touchend', function(e) {
+          var endX = e.changedTouches[0].clientX;
+          var diff = startX - endX;
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) window.nextHero();
+            else window.prevHero();
+          }
+        });
+      }
     })();
   </script>
   <!-- Fim Banner Carrossel -->
