@@ -176,7 +176,7 @@ def get_condominio_info(cond: str) -> str:
 # ============================================
 # CONSTRUIR PROMPT COM DADOS DA API
 # ============================================
-def build_prompt_from_api(data: dict) -> str:
+def build_prompt_from_api(data: dict, widget_data: ImovelData = None) -> str:
     """Constrói prompt rico com dados completos da API"""
     
     # Áreas
@@ -210,11 +210,18 @@ def build_prompt_from_api(data: dict) -> str:
     if data.get("open_bidding_date"):
         datas_leilao += f"\n  - Licitação: {format_date(data['open_bidding_date'])} - Lance mínimo: {format_price(data.get('min_sale_price'))}"
     
-    # Tratamento para Data Venda Online e Proposta
+    # Tratamento para Data Venda Online e Proposta (com fallback do widget)
+    data_venda = None
     if data.get("proposal_date"):
-        datas_leilao += f"\n  - Data Venda Online: {format_date(data['proposal_date'])}"
-    if data.get("online_sale_date"):
-         datas_leilao += f"\n  - Data Venda Online: {format_date(data['online_sale_date'])}"
+        data_venda = format_date(data['proposal_date'])
+    elif data.get("online_sale_date"):
+        data_venda = format_date(data['online_sale_date'])
+    elif widget_data and widget_data.data_venda_online:
+        data_venda = widget_data.data_venda_online
+
+    if data_venda:
+         datas_leilao += f"\n  - Data Venda Online: {data_venda}"
+
     if not datas_leilao:
         datas_leilao = "Verificar no edital"
     
@@ -423,7 +430,7 @@ async def chat(request: ChatRequest):
     
     # 2. Construir prompt
     if api_data:
-        system_prompt = build_prompt_from_api(api_data)
+        system_prompt = build_prompt_from_api(api_data, request.imovel)
         print(f"[{datetime.now()}] ✅ Dados da API carregados: {api_data.get('name', 'N/A')}")
     else:
         system_prompt = build_prompt_fallback(request.imovel)
