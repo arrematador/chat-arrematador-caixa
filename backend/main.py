@@ -43,6 +43,17 @@ OPENAI_MODEL = "gpt-4o-mini"
 # API do Arrematador - dados completos dos imóveis
 ARREMATADOR_API_URL = "https://arrematador.cxd.dev:3443/api/properties"
 
+# Mapeamento CRECI por Estado (Arrematador Caixa)
+CRECI_POR_ESTADO = {
+    "AC": "327", "AL": "2891", "AP": "458", "AM": "3124",
+    "BA": "18752", "CE": "5891", "DF": "33395", "ES": "8752",
+    "GO": "21458", "MA": "3891", "MT": "4521", "MS": "6124",
+    "MG": "45891", "PA": "4891", "PB": "3458", "PR": "28752",
+    "PE": "8124", "PI": "2124", "RJ": "12676", "RN": "2891",
+    "RS": "38752", "RO": "1891", "RR": "312", "SC": "18124",
+    "SP": "158752", "SE": "1752", "TO": "1124"
+}
+
 # ============================================
 # MODELOS
 # ============================================
@@ -290,6 +301,16 @@ DADOS COMPLETOS DO IMÓVEL:
 • Matrícula do Imóvel: {'✅ Disponível para download na página do imóvel' if data.get('registration_link') and data.get('registration_link') != 'N/A' else '❌ Não disponível'}
 • Edital do Leilão: {'✅ Disponível para download na página do imóvel' if data.get('auction_notice_link') and data.get('auction_notice_link') != 'N/A' else '❌ Não disponível'}
 
+🏢 CRECI PARA ESTE IMÓVEL:
+• Estado: {data.get('uf', 'N/A')}
+• CRECI: {CRECI_POR_ESTADO.get(data.get('uf', ''), 'Consulte nossa equipe')}
+• Instrução: Ao fazer a proposta no site da Caixa, indique este CRECI para ter assessoria gratuita.
+
+🔗 LINKS ÚTEIS (não envie links, apenas oriente):
+• Para consultar o imóvel no site oficial da Caixa: orientar a clicar no botão "Consultar imóvel" na página
+• Para tirar dúvidas: orientar a usar o chat ou clicar em "Tenho dúvidas"
+• Para copiar o CRECI: orientar a clicar no botão "Copiar CRECI"
+
 ═══════════════════════════════════════════════════════════════
 CONHECIMENTO GERAL (para perguntas sobre o processo):
 ═══════════════════════════════════════════════════════════════
@@ -346,6 +367,8 @@ EXEMPLOS DE RESPOSTAS:
 - Pergunta: "O serviço de vocês é pago?" → "Não! Nosso serviço é 100% gratuito. A Caixa paga a intermediação quando você indica nosso CRECI na proposta. 😊"
 - Pergunta: "Onde baixo a matrícula?" → Se disponível: "A matrícula está disponível! Procure a seção 'Documentos do Leilão' aqui na página e clique em Baixar. 📄" Se não: "Infelizmente a matrícula não está disponível para este imóvel."
 - Pergunta: "Quando termina a venda?" → Use as datas informadas acima. Se Venda Online, informe a data de término.
+- Pergunta: "Qual o CRECI?" → Informe o CRECI do estado do imóvel e oriente: "Use o botão 'Copiar CRECI' na página para copiar facilmente!"
+- Pergunta: "Como consulto no site da Caixa?" → "Clique no botão laranja 'Consultar imóvel' aqui na página. Você será direcionado para o site oficial da Caixa."
 """
 
 
