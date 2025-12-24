@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Mobile - Chat Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .devices {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .device {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .device-label {
+            color: #f97316;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .phone-frame {
+            background: #0f0f23;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        
+        .phone-screen {
+            background: #f5f5f5;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .iphone-se {
+            width: 320px;
+            height: 568px;
+        }
+        
+        .iphone-14 {
+            width: 390px;
+            height: 844px;
+        }
+        
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #0f0f23;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .home-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+        
+        /* Simular página do imóvel */
+        .page-content {
+            padding: 50px 15px 20px;
+            background: white;
+            height: 100%;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .page-content h2 {
+            font-size: 14px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .page-content .price {
+            font-size: 20px;
+            color: #f97316;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .page-content .info {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #64748b;
+            font-size: 11px;
+        }
+        
+        .issues {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            max-width: 800px;
+        }
+        
+        .issues h3 {
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+        
+        .issues ul {
+            color: #7f1d1d;
+            padding-left: 20px;
+        }
+        
+        .issues li {
+            margin-bottom: 8px;
+        }
+        
+        .improvements {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            max-width: 800px;
+        }
+        
+        .improvements h3 {
+            color: #059669;
+            margin-bottom: 15px;
+        }
+        
+        .improvements ul {
+            color: #065f46;
+            padding-left: 20px;
+        }
+        
+        .improvements li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Teste de Experiência Mobile - Chat Widget</h1>
+    
+    <div class="devices">
+        <!-- iPhone SE (pequeno) -->
+        <div class="device">
+            <span class="device-label">iPhone SE (320x568)</span>
+            <div class="phone-frame">
+                <div class="phone-screen iphone-se">
+                    <div class="page-content">
+                        <h2>Apartamento em Recife - PE</h2>
+                        <div class="price">R$ 188.598,00</div>
+                        <div class="info">📍 Rua Exemplo, 123 - Boa Viagem</div>
+                        <div class="info">🏠 68,36 m² | 2 Quartos</div>
+                        <div class="info">💰 42% OFF - Avaliação: R$ 325.000</div>
+                        <div class="info">✅ Aceita Financiamento</div>
+                        <div class="info">✅ Aceita FGTS</div>
+                        <p style="color: #64748b; margin-top: 15px; font-size: 10px;">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        </p>
+                    </div>
+                    <!-- Widget será injetado aqui -->
+                    <div id="chat-container-se"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- iPhone 14 (médio) -->
+        <div class="device">
+            <span class="device-label">iPhone 14 (390x844)</span>
+            <div class="phone-frame">
+                <div class="phone-screen iphone-14">
+                    <div class="notch"></div>
+                    <div class="page-content" style="padding-top: 50px;">
+                        <h2>Apartamento em Recife - PE</h2>
+                        <div class="price">R$ 188.598,00</div>
+                        <div class="info">📍 Rua Exemplo, 123 - Boa Viagem</div>
+                        <div class="info">🏠 68,36 m² | 2 Quartos</div>
+                        <div class="info">💰 42% OFF - Avaliação: R$ 325.000</div>
+                        <div class="info">✅ Aceita Financiamento</div>
+                        <div class="info">✅ Aceita FGTS</div>
+                        <div class="info">📝 Modalidade: Venda Direta</div>
+                        <p style="color: #64748b; margin-top: 15px; font-size: 11px;">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+                        </p>
+                    </div>
+                    <div class="home-bar"></div>
+                    <!-- Widget será injetado aqui -->
+                    <div id="chat-container-14"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="issues">
+        <h3>⚠️ Problemas Identificados no CSS Mobile Atual</h3>
+        <ul>
+            <li><strong>right: -20px</strong> - Pode causar desalinhamento e scroll horizontal</li>
+            <li><strong>bottom: 70px</strong> - Conflita com o container que tem bottom: 20px</li>
+            <li><strong>height: calc(100vh - 80px)</strong> - Pode não considerar a barra de endereço do navegador mobile</li>
+            <li><strong>Auto-open desabilitado</strong> - Bom! Mas botão toggle pode ficar atrás de outros elementos</li>
+            <li><strong>Teclado virtual</strong> - Quando abre, pode cobrir o input de mensagem</li>
+            <li><strong>Touch targets</strong> - Botões podem ser pequenos demais para dedos</li>
+        </ul>
+    </div>
+    
+    <div class="improvements">
+        <h3>✅ Melhorias Sugeridas para Mobile</h3>
+        <ul>
+            <li><strong>Usar dvh (dynamic viewport height)</strong> - Para lidar com barra de endereço do browser</li>
+            <li><strong>Fullscreen no mobile</strong> - Melhor experiência quando aberto</li>
+            <li><strong>Safe area insets</strong> - Para iPhones com notch e home bar</li>
+            <li><strong>Touch feedback</strong> - Haptic/visual feedback nos botões</li>
+            <li><strong>Scroll suave</strong> - -webkit-overflow-scrolling: touch</li>
+            <li><strong>Botão maior</strong> - 64px mínimo para mobile</li>
+            <li><strong>Input com type="text" inputmode="text"</strong> - Teclado correto</li>
+        </ul>
+    </div>
+
+    <!-- Widget simulado para demonstração -->
+    <script>
+    // Simular o widget nas duas telas
+    function createMiniWidget(containerId, isOpen) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        
+        var widgetHTML = `
+        <div style="
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 100;
+        ">
+            ${isOpen ? `
+            <div style="
+                position: absolute;
+                bottom: 65px;
+                right: 0;
+                width: calc(100% + 15px);
+                max-width: 100%;
+                height: calc(100% - 60px);
+                background: white;
+                border-radius: 16px 16px 0 0;
+                box-shadow: 0 -5px 30px rgba(0,0,0,0.2);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            ">
+                <!-- Header -->
+                <div style="
+                    background: #f97316;
+                    color: white;
+                    padding: 12px 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 14px;">Assistente Arrematador</div>
+                        <div style="font-size: 11px; opacity: 0.9;">Especialista em Leilões</div>
+                    </div>
+                    <span style="cursor: pointer;">✕</span>
+                </div>
+                
+                <!-- Messages -->
+                <div style="
+                    flex: 1;
+                    padding: 12px;
+                    background: #f8fafc;
+                    overflow-y: auto;
+                    font-size: 12px;
+                ">
+                    <div style="
+                        background: white;
+                        padding: 10px 12px;
+                        border-radius: 12px;
+                        border: 1px solid #e2e8f0;
+                        max-width: 85%;
+                        margin-bottom: 10px;
+                    ">
+                        Olá! 👋 Sou o assistente virtual do Arrematador Caixa. Como posso ajudar você com este imóvel?
+                    </div>
+                </div>
+                
+                <!-- Input -->
+                <div style="
+                    padding: 12px;
+                    background: white;
+                    border-top: 1px solid #e2e8f0;
+                ">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" placeholder="Digite sua dúvida..." style="
+                            flex: 1;
+                            padding: 10px 14px;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 20px;
+                            font-size: 13px;
+                        ">
+                        <button style="
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            background: #f97316;
+                            border: none;
+                            color: white;
+                            font-size: 16px;
+                        ">➤</button>
+                    </div>
+                    <button style="
+                        width: 100%;
+                        margin-top: 10px;
+                        padding: 10px;
+                        background: #25D366;
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        font-size: 12px;
+                    ">📱 Falar com Especialista</button>
+                </div>
+            </div>
+            ` : ''}
+            
+            <!-- Toggle button -->
+            <div style="
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: #f97316;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+                cursor: pointer;
+                color: white;
+                font-size: 24px;
+            ">
+                ${isOpen ? '✕' : '💬'}
+            </div>
+        </div>
+        `;
+        
+        container.innerHTML = widgetHTML;
+    }
+    
+    // iPhone SE - mostrar fechado
+    createMiniWidget('chat-container-se', false);
+    
+    // iPhone 14 - mostrar aberto
+    createMiniWidget('chat-container-14', true);
+    </script>
+</body>
+</html>

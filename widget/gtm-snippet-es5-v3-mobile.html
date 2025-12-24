@@ -1,0 +1,453 @@
+<script>
+(function(){
+    var CONFIG = {
+        BACKEND_URL: "https://chat-arrematador-caixa.onrender.com",
+        WHATSAPP_NUMBER: "5519982391622",
+        THEME_COLOR: "#f97316",
+        AUTO_OPEN_DESKTOP: true,
+        AUTO_OPEN_DELAY: 2000,
+        MOBILE_BREAKPOINT: 768,
+        WELCOME_MESSAGE: "Olá! 👋 Sou o assistente virtual do Arrematador Caixa. Como posso ajudar você com este imóvel?",
+        ERROR_MESSAGE: "Desculpe, tive um problema técnico. Por favor, tente novamente ou clique em 'Falar com Especialista' para atendimento humano."
+    };
+
+    var state = {isOpen:false,isMobile:window.innerWidth<=CONFIG.MOBILE_BREAKPOINT,isLoading:false,imovelData:null,historico:[],shadow:null};
+
+    function extractImovelData(){
+        var url = window.location.href;
+        var pageText = document.body.innerText || '';
+        var pageHTML = document.body.innerHTML || '';
+        
+        var data = {
+            url: url,
+            chb: null,
+            titulo: null,
+            endereco: null,
+            cidade: null,
+            estado: null,
+            preco: null,
+            avaliacao: null,
+            desconto: null,
+            desconto_percentual: null,
+            tipo_imovel: null,
+            area_privativa: null,
+            area_terreno: null,
+            area: null,
+            quartos: null,
+            vagas: null,
+            descricao: null,
+            inscricao: null,
+            modalidade: null,
+            data_leilao: null,
+            aceita_financiamento: false,
+            aceita_fgts: false,
+            aceita_recursos_proprios: false,
+            ocupado: false,
+            matricula: null,
+            observacoes: null,
+            despesas_condominio: null,
+            despesas_tributos: null
+        };
+        
+        // CHB da URL
+        var chbMatch = url.match(/\/imovel\/(\d+)/);
+        if (chbMatch) data.chb = chbMatch[1];
+        
+        // Título - H1 ou meta
+        var h1 = document.querySelector('h1');
+        if (h1) data.titulo = h1.textContent.trim();
+        
+        // Endereço - geralmente vem após o título, procurar padrão de CEP
+        var enderecoMatch = pageText.match(/([A-Za-záàâãéêíóôõúç0-9\s,\.\-]+CEP[:\s]*[\d\-]+[^]*?(?:PE|SP|RJ|MG|BA|RS|PR|SC|GO|DF|ES|CE|PA|MA|MS|MT|PB|RN|PI|AL|SE|AM|RO|AC|AP|RR|TO))/i);
+        if (enderecoMatch) data.endereco = enderecoMatch[1].trim();
+        
+        // Cidade e Estado
+        var cidadeEstadoMatch = pageText.match(/([A-Za-záàâãéêíóôõúç\s]+)\s*[-–]\s*(PERNAMBUCO|SÃO PAULO|RIO DE JANEIRO|MINAS GERAIS|BAHIA|RIO GRANDE DO SUL|PARANÁ|SANTA CATARINA|GOIÁS|DISTRITO FEDERAL|ESPÍRITO SANTO|CEARÁ|PARÁ|MARANHÃO|MATO GROSSO DO SUL|MATO GROSSO|PARAÍBA|RIO GRANDE DO NORTE|PIAUÍ|ALAGOAS|SERGIPE|AMAZONAS|RONDÔNIA|ACRE|AMAPÁ|RORAIMA|TOCANTINS)/i);
+        if (cidadeEstadoMatch) {
+            data.cidade = cidadeEstadoMatch[1].trim();
+            data.estado = cidadeEstadoMatch[2].trim();
+        }
+        
+        // Preço de venda - padrão "Valor do imóvel" ou primeiro R$ grande
+        var precoMatch = pageText.match(/Valor do im[óo]vel[\s\S]*?R\$\s*([\d.,]+)/i);
+        if (!precoMatch) precoMatch = pageText.match(/R\$\s*([\d]{1,3}(?:\.[\d]{3})*(?:,[\d]{2})?)/);
+        if (precoMatch) data.preco = 'R$ ' + precoMatch[1];
+        
+        // Valor de avaliação
+        var avaliacaoMatch = pageText.match(/Valor de Avalia[çc][ãa]o[\s\S]*?R\$\s*([\d.,]+)/i);
+        if (avaliacaoMatch) data.avaliacao = 'R$ ' + avaliacaoMatch[1];
+        
+        // Desconto percentual
+        var descontoPercMatch = pageText.match(/(\d+)\s*%\s*OFF/i);
+        if (descontoPercMatch) data.desconto_percentual = descontoPercMatch[1] + '% OFF';
+        
+        // Desconto em reais
+        var descontoReaisMatch = pageText.match(/R\$\s*([\d.,]+)\s*de desconto/i);
+        if (descontoReaisMatch) data.desconto = 'R$ ' + descontoReaisMatch[1];
+        
+        // Inscrição do imóvel
+        var inscricaoMatch = pageText.match(/Inscri[çc][ãa]o[:\s]*([\d\.]+)/i);
+        if (inscricaoMatch) data.inscricao = inscricaoMatch[1];
+        
+        // Descrição do imóvel
+        var descricaoMatch = pageText.match(/Descri[çc][ãa]o[:\s]*\n*([^\n]+(?:Quartos|Sala|Cozinha|WC|Banheiro|Su[íi]te|Área)[^\n]*)/i);
+        if (descricaoMatch) data.descricao = descricaoMatch[1].trim();
+        
+        // Área privativa
+        var areaPrivMatch = pageText.match(/[Áá]rea\s+Privativa[\s\S]*?(\d+(?:,\d+)?)\s*m[²2]/i);
+        if (areaPrivMatch) data.area_privativa = areaPrivMatch[1] + ' m²';
+        
+        // Área do terreno
+        var areaTerrenoMatch = pageText.match(/[Áá]rea\s+do\s+Terreno[\s\S]*?(\d+(?:,\d+)?)\s*m[²2]/i);
+        if (areaTerrenoMatch) data.area_terreno = areaTerrenoMatch[1] + ' m²';
+        
+        // Quartos
+        var quartosMatch = pageText.match(/Quartos[\s\S]*?(\d+)/i);
+        if (!quartosMatch) quartosMatch = pageText.match(/(\d+)\s*Quartos/i);
+        if (quartosMatch) data.quartos = quartosMatch[1];
+        
+        // Modalidade
+        if (pageText.indexOf('Compra Direta') !== -1 || pageText.indexOf('Venda Direta') !== -1) {
+            data.modalidade = 'Compra Direta';
+        } else if (pageText.indexOf('1º Leilão') !== -1 || pageText.indexOf('Primeiro Leilão') !== -1) {
+            data.modalidade = '1º Leilão';
+        } else if (pageText.indexOf('2º Leilão') !== -1 || pageText.indexOf('Segundo Leilão') !== -1) {
+            data.modalidade = '2º Leilão';
+        }
+        
+        // Formas de pagamento - busca na seção específica
+        var formasPagamento = pageText.match(/Formas de Pagamento[\s\S]*?(?:Importante|Simule|$)/i);
+        if (formasPagamento) {
+            var secao = formasPagamento[0];
+            data.aceita_recursos_proprios = /Recursos pr[óo]prios[\s\S]*?Sim/i.test(secao);
+            data.aceita_fgts = /Aceita FGTS[\s\S]*?Sim/i.test(secao);
+            data.aceita_financiamento = /Aceita Financiamento[\s\S]*?Sim/i.test(secao);
+            if (/Aceita Financiamento[\s\S]*?N[ãa]o/i.test(secao)) {
+                data.aceita_financiamento = false;
+            }
+        }
+        
+        // Fallback para formas de pagamento
+        if (!data.aceita_fgts && /FGTS[\s\S]{0,20}Sim/i.test(pageText)) data.aceita_fgts = true;
+        if (!data.aceita_financiamento && /Financiamento[\s\S]{0,20}Sim/i.test(pageText)) data.aceita_financiamento = true;
+        
+        // Despesas
+        var condominioMatch = pageText.match(/Condom[íi]nio[\s\S]*?(Sob responsabilidade[^\.]+\.)/i);
+        if (condominioMatch) data.despesas_condominio = condominioMatch[1].trim();
+        
+        var tributosMatch = pageText.match(/Tributos[\s\S]*?(Sob responsabilidade[^\.]+\.)/i);
+        if (tributosMatch) data.despesas_tributos = tributosMatch[1].trim();
+        
+        // Data do leilão
+        var dataMatch = pageText.match(/(\d{2}\/\d{2}\/\d{4})/);
+        if (dataMatch) data.data_leilao = dataMatch[1];
+        
+        // Tipo de imóvel
+        var tiposImovel = ['Casa', 'Apartamento', 'Terreno', 'Sala Comercial', 'Galpão', 'Loja', 'Prédio', 'Sobrado', 'Flat', 'Kitnet'];
+        for (var j = 0; j < tiposImovel.length; j++) {
+            if (pageText.indexOf(tiposImovel[j]) !== -1) {
+                data.tipo_imovel = tiposImovel[j];
+                break;
+            }
+        }
+        
+        // Ocupado
+        data.ocupado = /ocupado|com\s*morador/i.test(pageText);
+        
+        // Debug - log dos dados extraídos
+        console.log('[Arrematador Chat] Dados extraídos:', data);
+        
+        return data;
+    }
+
+    function sendMessage(mensagem, callback){
+        if (!state.imovelData) state.imovelData = extractImovelData();
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', CONFIG.BACKEND_URL + '/chat', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    state.historico.push({role: 'user', content: mensagem});
+                    state.historico.push({role: 'assistant', content: data.resposta});
+                    callback(null, data);
+                } else {
+                    console.error('[Arrematador Chat] Erro HTTP:', xhr.status, xhr.responseText);
+                    callback(new Error('HTTP ' + xhr.status), null);
+                }
+            }
+        };
+        xhr.onerror = function() {
+            console.error('[Arrematador Chat] Erro de rede');
+            callback(new Error('Network error'), null);
+        };
+        var payload = JSON.stringify({mensagem: mensagem, imovel: state.imovelData, historico: state.historico});
+        console.log('[Arrematador Chat] Enviando:', payload);
+        xhr.send(payload);
+    }
+
+    function createWidget(){
+        state.imovelData = extractImovelData();
+        var widget = document.createElement('div');
+        widget.id = 'arrematador-chat-agent';
+        state.shadow = widget.attachShadow({mode: 'open'});
+        
+        // CSS otimizado para mobile
+        var styles = [
+            '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");',
+            ':host{--primary:' + CONFIG.THEME_COLOR + ';--primary-dark:#ea580c;--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);font-family:"Inter",sans-serif}',
+            '*{box-sizing:border-box;margin:0;padding:0}',
+            
+            // Container - posição fixa
+            '.container{position:fixed;bottom:20px;right:20px;z-index:2147483647;font-size:14px}',
+            
+            // Botão toggle - maior para touch
+            '.toggle-btn{width:64px;height:64px;border-radius:50%;background:var(--primary);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(249,115,22,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);-webkit-tap-highlight-color:transparent;touch-action:manipulation}',
+            '.toggle-btn:hover{transform:scale(1.1)}',
+            '.toggle-btn:active{transform:scale(0.95)}',
+            '.toggle-btn svg{width:30px;height:30px;fill:white}',
+            '.toggle-btn.open svg.chat-icon{display:none}',
+            '.toggle-btn.open svg.close-icon{display:block}',
+            '.toggle-btn:not(.open) svg.chat-icon{display:block}',
+            '.toggle-btn:not(.open) svg.close-icon{display:none}',
+            
+            // Chat window - desktop
+            '.chat-window{position:absolute;bottom:80px;right:0;width:380px;max-width:calc(100vw - 40px);height:550px;max-height:calc(100vh - 120px);background:white;border-radius:16px;box-shadow:0 10px 50px rgba(0,0,0,0.2);display:none;flex-direction:column;overflow:hidden;animation:slideUp 0.3s ease-out}',
+            '.chat-window.open{display:flex}',
+            
+            '@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}',
+            '@keyframes slideUpMobile{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}',
+            
+            // Header
+            '.chat-header{background:var(--primary);color:white;padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}',
+            '.chat-header-info{flex:1}',
+            '.chat-header-title{font-weight:600;font-size:16px}',
+            '.chat-header-subtitle{font-size:12px;opacity:0.9}',
+            '.close-btn{background:none;border:none;color:white;cursor:pointer;padding:8px;opacity:0.8;-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}',
+            '.close-btn:hover,.close-btn:active{opacity:1}',
+            
+            // Messages
+            '.chat-messages{flex:1;overflow-y:auto;padding:16px;background:#f8fafc;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}',
+            '.message{max-width:85%;padding:12px 16px;border-radius:16px;line-height:1.5;animation:fadeIn 0.3s ease;word-wrap:break-word}',
+            '@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}',
+            '.message.bot{background:white;align-self:flex-start;border:1px solid #e2e8f0;border-bottom-left-radius:4px;color:#1e293b}',
+            '.message.user{background:var(--primary);color:white;align-self:flex-end;border-bottom-right-radius:4px}',
+            '.message.typing{background:white;border:1px solid #e2e8f0;align-self:flex-start;padding:16px}',
+            
+            // Typing dots
+            '.typing-dots{display:flex;gap:4px}',
+            '.typing-dots span{width:8px;height:8px;background:#94a3b8;border-radius:50%;animation:bounce 1.4s infinite ease-in-out}',
+            '.typing-dots span:nth-child(1){animation-delay:-0.32s}',
+            '.typing-dots span:nth-child(2){animation-delay:-0.16s}',
+            '@keyframes bounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}',
+            
+            // Input area
+            '.chat-input-area{padding:12px 16px;background:white;border-top:1px solid #e2e8f0;flex-shrink:0}',
+            '.input-wrapper{display:flex;gap:8px;align-items:center}',
+            '.chat-input{flex:1;padding:12px 16px;border:1px solid #e2e8f0;border-radius:24px;font-size:16px;outline:none;-webkit-appearance:none;appearance:none}',
+            '.chat-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,0.1)}',
+            '.send-btn{width:48px;height:48px;border-radius:50%;background:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}',
+            '.send-btn:hover{background:var(--primary-dark)}',
+            '.send-btn:active{transform:scale(0.95)}',
+            '.send-btn:disabled{background:#cbd5e1;cursor:not-allowed}',
+            '.send-btn svg{width:22px;height:22px;fill:white}',
+            
+            // WhatsApp button
+            '.whatsapp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:10px;background:#25D366;color:white;border:none;border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}',
+            '.whatsapp-btn:hover,.whatsapp-btn:active{background:#1da851}',
+            '.whatsapp-btn svg{width:22px;height:22px;fill:currentColor}',
+            
+            // ========== MOBILE STYLES ==========
+            '@media(max-width:768px){',
+            '  .container{bottom:0;right:0;left:0;padding:0 16px 16px}',
+            '  .container.chat-open{padding:0}',
+            
+            // Toggle button mobile
+            '  .toggle-btn{position:fixed;bottom:16px;right:16px;width:60px;height:60px}',
+            '  .container.chat-open .toggle-btn{display:none}',
+            
+            // Chat window fullscreen mobile
+            '  .chat-window{',
+            '    position:fixed;',
+            '    top:0;',
+            '    left:0;',
+            '    right:0;',
+            '    bottom:0;',
+            '    width:100%;',
+            '    max-width:100%;',
+            '    height:100%;',
+            '    max-height:100%;',
+            '    border-radius:0;',
+            '    animation:slideUpMobile 0.3s ease-out;',
+            '  }',
+            
+            // Header com safe area
+            '  .chat-header{padding:calc(12px + var(--safe-top)) 16px 12px}',
+            
+            // Messages com scroll otimizado
+            '  .chat-messages{padding:12px}',
+            
+            // Input area com safe area bottom
+            '  .chat-input-area{padding:12px 16px calc(12px + var(--safe-bottom))}',
+            '  .chat-input{font-size:16px}',
+            
+            '}'
+        ].join('');
+        
+        var html = '<style>' + styles + '</style><div class="container" id="chat-container"><div class="chat-window" id="chat-window"><div class="chat-header"><div class="chat-header-info"><div class="chat-header-title">Assistente Arrematador</div><div class="chat-header-subtitle">Especialista em Leilões</div></div><button class="close-btn" id="close-btn" aria-label="Fechar chat"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="chat-messages" id="chat-messages"></div><div class="chat-input-area"><div class="input-wrapper"><input type="text" inputmode="text" class="chat-input" id="chat-input" placeholder="Digite sua dúvida..." autocomplete="off" /><button class="send-btn" id="send-btn" aria-label="Enviar mensagem"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div><a href="#" class="whatsapp-btn" id="whatsapp-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Falar com Especialista</a></div></div><button class="toggle-btn" id="toggle-btn" aria-label="Abrir chat"><svg class="chat-icon" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg><svg class="close-icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg></button></div>';
+        
+        state.shadow.innerHTML = html;
+        document.body.appendChild(widget);
+        setupEventListeners();
+        
+        // Auto open apenas em desktop
+        if (CONFIG.AUTO_OPEN_DESKTOP && !state.isMobile) {
+            setTimeout(function(){ toggleChat(true); }, CONFIG.AUTO_OPEN_DELAY);
+        }
+    }
+
+    function setupEventListeners(){
+        var toggleBtn = state.shadow.getElementById('toggle-btn');
+        var closeBtn = state.shadow.getElementById('close-btn');
+        var sendBtn = state.shadow.getElementById('send-btn');
+        var input = state.shadow.getElementById('chat-input');
+        
+        toggleBtn.addEventListener('click', function(){ toggleChat(); });
+        closeBtn.addEventListener('click', function(){ toggleChat(false); });
+        sendBtn.addEventListener('click', function(){ handleSendMessage(); });
+        input.addEventListener('keypress', function(e){ 
+            if(e.key === 'Enter' && !e.shiftKey){ 
+                e.preventDefault(); 
+                handleSendMessage(); 
+            } 
+        });
+        
+        // Detectar mudança de orientação e resize
+        window.addEventListener('resize', function(){
+            state.isMobile = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT;
+        });
+        
+        // Prevenir zoom no input em iOS
+        input.addEventListener('focus', function(){
+            if (state.isMobile) {
+                // Scroll para garantir que input está visível
+                setTimeout(function(){
+                    var messages = state.shadow.getElementById('chat-messages');
+                    messages.scrollTop = messages.scrollHeight;
+                }, 300);
+            }
+        });
+        
+        updateWhatsAppLink();
+    }
+
+    function toggleChat(force){
+        state.isOpen = force !== undefined ? force : !state.isOpen;
+        var chatWindow = state.shadow.getElementById('chat-window');
+        var toggleBtn = state.shadow.getElementById('toggle-btn');
+        var container = state.shadow.getElementById('chat-container');
+        
+        if (state.isOpen) {
+            chatWindow.classList.add('open');
+            toggleBtn.classList.add('open');
+            container.classList.add('chat-open');
+            
+            var messages = state.shadow.getElementById('chat-messages');
+            if (messages.children.length === 0) { 
+                addMessage(CONFIG.WELCOME_MESSAGE, 'bot'); 
+            }
+            
+            // Bloquear scroll do body no mobile quando chat está aberto
+            if (state.isMobile) {
+                document.body.style.overflow = 'hidden';
+            }
+            
+            setTimeout(function(){ 
+                state.shadow.getElementById('chat-input').focus(); 
+            }, 300);
+        } else {
+            chatWindow.classList.remove('open');
+            toggleBtn.classList.remove('open');
+            container.classList.remove('chat-open');
+            
+            // Restaurar scroll do body
+            document.body.style.overflow = '';
+        }
+    }
+
+    function addMessage(text, type){
+        var messages = state.shadow.getElementById('chat-messages');
+        var msg = document.createElement('div');
+        msg.className = 'message ' + type;
+        msg.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        messages.appendChild(msg);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function showTyping(){
+        var messages = state.shadow.getElementById('chat-messages');
+        var typing = document.createElement('div');
+        typing.className = 'message typing';
+        typing.id = 'typing-indicator';
+        typing.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function hideTyping(){ 
+        var typing = state.shadow.getElementById('typing-indicator'); 
+        if(typing) typing.remove(); 
+    }
+
+    function handleSendMessage(){
+        var input = state.shadow.getElementById('chat-input');
+        var sendBtn = state.shadow.getElementById('send-btn');
+        var mensagem = input.value.trim();
+        if (!mensagem || state.isLoading) return;
+        
+        input.value = '';
+        state.isLoading = true;
+        sendBtn.disabled = true;
+        addMessage(mensagem, 'user');
+        showTyping();
+        
+        sendMessage(mensagem, function(error, data){
+            hideTyping();
+            if (error) {
+                addMessage(CONFIG.ERROR_MESSAGE, 'bot');
+            } else {
+                addMessage(data.resposta, 'bot');
+                if (data.whatsapp_link) { 
+                    state.shadow.getElementById('whatsapp-btn').href = data.whatsapp_link; 
+                }
+            }
+            state.isLoading = false;
+            sendBtn.disabled = false;
+            input.focus();
+        });
+    }
+
+    function updateWhatsAppLink(){
+        var data = state.imovelData;
+        var text = data && data.chb 
+            ? 'Olá! Tenho interesse no imóvel ' + (data.titulo || '') + ' (CHB: ' + data.chb + '). Link: ' + data.url 
+            : 'Olá! Vim do site Arrematador Caixa e tenho uma dúvida.';
+        var link = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(text);
+        var waBtn = state.shadow.getElementById('whatsapp-btn');
+        if (waBtn) waBtn.href = link;
+    }
+
+    function init(){ 
+        if(document.readyState === 'loading'){ 
+            document.addEventListener('DOMContentLoaded', createWidget); 
+        } else { 
+            createWidget(); 
+        } 
+    }
+    
+    if (!document.getElementById('arrematador-chat-agent')) { 
+        init(); 
+    }
+})();
+</script>
