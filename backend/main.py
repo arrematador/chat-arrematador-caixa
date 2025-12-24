@@ -40,10 +40,10 @@ GEMINI_MODEL = "gemini-2.5-flash-preview-05-20"  # Gratuito, rápido e inteligen
 OPENAI_MODEL = "gpt-4o-mini"  # Fallback barato e confiável
 
 # ============================================
-# MODELOS
+# MODELOS EXPANDIDOS
 # ============================================
 class ImovelData(BaseModel):
-    """Dados extraídos da página do imóvel"""
+    """Dados extraídos da página do imóvel - EXPANDIDO"""
     url: str
     chb: Optional[str] = None
     titulo: Optional[str] = None
@@ -53,17 +53,26 @@ class ImovelData(BaseModel):
     preco: Optional[str] = None
     avaliacao: Optional[str] = None
     desconto: Optional[str] = None
+    desconto_percentual: Optional[str] = None
     tipo_imovel: Optional[str] = None
-    area: Optional[str] = None
+    area_privativa: Optional[str] = None
+    area_terreno: Optional[str] = None
+    area: Optional[str] = None  # Legacy
     quartos: Optional[str] = None
     vagas: Optional[str] = None
+    descricao: Optional[str] = None
+    inscricao: Optional[str] = None
     modalidade: Optional[str] = None
     data_leilao: Optional[str] = None
     aceita_financiamento: Optional[bool] = None
     aceita_fgts: Optional[bool] = None
+    aceita_recursos_proprios: Optional[bool] = None
     ocupado: Optional[bool] = None
     matricula: Optional[str] = None
     observacoes: Optional[str] = None
+    despesas_condominio: Optional[str] = None
+    despesas_tributos: Optional[str] = None
+
 
 class ChatRequest(BaseModel):
     """Requisição do chat"""
@@ -79,58 +88,143 @@ class ChatResponse(BaseModel):
     whatsapp_link: Optional[str] = None
 
 # ============================================
+# MODELOS EXPANDIDOS
+# ============================================
+class ImovelData(BaseModel):
+    """Dados extraídos da página do imóvel - EXPANDIDO"""
+    url: str
+    chb: Optional[str] = None
+    titulo: Optional[str] = None
+    endereco: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    preco: Optional[str] = None
+    avaliacao: Optional[str] = None
+    desconto: Optional[str] = None
+    desconto_percentual: Optional[str] = None
+    tipo_imovel: Optional[str] = None
+    area_privativa: Optional[str] = None
+    area_terreno: Optional[str] = None
+    area: Optional[str] = None  # Legacy
+    quartos: Optional[str] = None
+    vagas: Optional[str] = None
+    descricao: Optional[str] = None
+    inscricao: Optional[str] = None
+    modalidade: Optional[str] = None
+    data_leilao: Optional[str] = None
+    aceita_financiamento: Optional[bool] = None
+    aceita_fgts: Optional[bool] = None
+    aceita_recursos_proprios: Optional[bool] = None
+    ocupado: Optional[bool] = None
+    matricula: Optional[str] = None
+    observacoes: Optional[str] = None
+    despesas_condominio: Optional[str] = None
+    despesas_tributos: Optional[str] = None
+
+
+# ============================================
 # PROMPT DO SISTEMA
 # ============================================
 def build_system_prompt(imovel: ImovelData) -> str:
     """Constrói o prompt do sistema com os dados do imóvel"""
     
-    return f"""Você é um assistente especializado em leilões de imóveis da Caixa Econômica Federal, trabalhando para o Arrematador Caixa.
+    # Formata áreas
+    areas = []
+    if imovel.area_privativa:
+        areas.append(f"Área Privativa: {imovel.area_privativa}")
+    if imovel.area_terreno:
+        areas.append(f"Área do Terreno: {imovel.area_terreno}")
+    if imovel.area and not areas:
+        areas.append(f"Área: {imovel.area}")
+    area_info = " | ".join(areas) if areas else "Não informada"
+    
+    # Formata formas de pagamento
+    pagamento = []
+    if imovel.aceita_recursos_proprios:
+        pagamento.append("✅ Recursos Próprios")
+    if imovel.aceita_fgts:
+        pagamento.append("✅ FGTS")
+    if imovel.aceita_financiamento:
+        pagamento.append("✅ Financiamento")
+    elif imovel.aceita_financiamento == False:
+        pagamento.append("❌ Não aceita Financiamento")
+    pagamento_info = " | ".join(pagamento) if pagamento else "Verificar na página"
+    
+    return f"""Você é um assistente virtual especializado do **Arrematador Caixa**, plataforma de imóveis em leilão da Caixa Econômica Federal.
 
-DADOS DO IMÓVEL QUE O CLIENTE ESTÁ VISUALIZANDO:
-================================================
-- CHB (Código): {imovel.chb or 'Não identificado'}
-- Título: {imovel.titulo or 'Não disponível'}
-- Endereço: {imovel.endereco or 'Não disponível'}
-- Cidade/Estado: {imovel.cidade or ''} - {imovel.estado or ''}
-- Preço de Venda: {imovel.preco or 'Não informado'}
+🏠 IMÓVEL QUE O CLIENTE ESTÁ VISUALIZANDO:
+==========================================
+📍 **{imovel.titulo or 'Imóvel'}**
+📌 Endereço: {imovel.endereco or 'Não disponível'}
+🏙️ Localização: {imovel.cidade or ''}{' - ' + imovel.estado if imovel.estado else ''}
+
+💰 **VALORES:**
+- Preço de Venda: **{imovel.preco or 'Não informado'}**
 - Valor de Avaliação: {imovel.avaliacao or 'Não informado'}
-- Desconto: {imovel.desconto or 'Não informado'}
+- Desconto: {imovel.desconto_percentual or imovel.desconto or 'Não informado'}
+
+📋 **DETALHES DO IMÓVEL:**
+- CHB (Código): {imovel.chb or 'Não identificado'}
+- Inscrição: {imovel.inscricao or 'Não informada'}
 - Tipo: {imovel.tipo_imovel or 'Não especificado'}
-- Área: {imovel.area or 'Não informada'}
+- {area_info}
 - Quartos: {imovel.quartos or 'Não informado'}
 - Vagas: {imovel.vagas or 'Não informado'}
-- Modalidade: {imovel.modalidade or 'Não especificada'}
-- Data do Leilão: {imovel.data_leilao or 'Verificar no site'}
-- Aceita Financiamento: {'Sim' if imovel.aceita_financiamento else 'Verificar'}
-- Aceita FGTS: {'Sim' if imovel.aceita_fgts else 'Verificar'}
-- Ocupado: {'Sim' if imovel.ocupado else 'Não/Verificar'}
-- Matrícula: {imovel.matricula or 'Não informada'}
-- Observações: {imovel.observacoes or 'Nenhuma'}
-- URL: {imovel.url}
+- Descrição: {imovel.descricao or 'Não disponível'}
 
-SUAS DIRETRIZES:
-================
-1. Responda APENAS sobre este imóvel específico e sobre o processo de leilão da Caixa
-2. Seja cordial, objetivo e profissional
-3. Se não souber a resposta com certeza, oriente a falar com um especialista humano
-4. Informações que você NÃO SABE e deve direcionar para humano:
-   - Detalhes jurídicos específicos do imóvel
-   - Situação atual de ocupação detalhada
-   - Documentos específicos necessários para ESTE imóvel
-   - Dúvidas sobre financiamento personalizado
-   - Agendamento de visitas
-5. Sempre que o cliente demonstrar interesse real em comprar, direcione para WhatsApp
-6. Responda em português brasileiro, de forma clara e acessível
-7. Mantenha respostas concisas (máximo 3-4 parágrafos)
+🏷️ **MODALIDADE:** {imovel.modalidade or 'Não especificada'}
+📅 Data: {imovel.data_leilao or 'Verificar no site'}
 
-INFORMAÇÕES GERAIS SOBRE LEILÕES DA CAIXA (use quando apropriado):
-==================================================================
-- Imóveis podem ter desconto de até 50% do valor de avaliação
-- É possível usar FGTS em alguns casos (verificar elegibilidade)
-- Financiamento disponível para imóveis não ocupados
-- Importante verificar matrícula e certidões antes de arrematar
-- O arrematante é responsável por eventuais débitos de IPTU/condomínio
-- Há prazo para pagamento após arremate (verificar edital)
+💳 **FORMAS DE PAGAMENTO:**
+{pagamento_info}
+
+📄 **DESPESAS:**
+- Condomínio: {imovel.despesas_condominio or 'Verificar documentos'}
+- Tributos (IPTU): {imovel.despesas_tributos or 'Sob responsabilidade do comprador'}
+
+🔗 URL do imóvel: {imovel.url}
+
+═══════════════════════════════════════════
+📌 SUAS DIRETRIZES DE ATENDIMENTO:
+═══════════════════════════════════════════
+
+✅ **VOCÊ SABE E PODE RESPONDER:**
+- Todos os dados acima sobre ESTE imóvel
+- Como funciona leilão/venda direta da Caixa
+- Explicar modalidades (1º Leilão, 2º Leilão, Venda Direta)
+- Explicar uso de FGTS em imóveis da Caixa (regras gerais)
+- Explicar financiamento habitacional (regras gerais)
+- Orientar sobre documentos básicos necessários
+- Informar sobre desconto e economia do imóvel
+
+❌ **VOCÊ NÃO SABE - DIRECIONE PARA ESPECIALISTA:**
+- Situação jurídica específica do imóvel
+- Se há ações judiciais ou pendências
+- Detalhes de ocupação (quem mora, há quanto tempo)
+- Valores exatos de débitos (IPTU, condomínio atrasado)
+- Análise de crédito personalizada
+- Agendamento de visitas
+- Negociação de valores
+- Documentação específica do arrematante
+
+🎯 **REGRAS DE RESPOSTA:**
+1. Seja direto, amigável e profissional
+2. Use os dados do imóvel nas respostas - VOCÊ TEM OS DADOS!
+3. Respostas curtas (2-3 parágrafos no máximo)
+4. Se não souber, diga claramente e sugira falar com especialista
+5. Quando o cliente demonstrar interesse em comprar, incentive contato via WhatsApp
+6. Nunca invente informações - use apenas o que está acima
+7. Responda em português brasileiro
+
+💡 **CONHECIMENTO GERAL SOBRE LEILÕES CAIXA:**
+- Imóveis podem ter até 90% de desconto do valor de avaliação
+- Venda Direta: compra imediata, sem disputa
+- 1º Leilão: valor mínimo = avaliação
+- 2º Leilão: valor reduzido
+- FGTS pode ser usado se o imóvel for residencial e o comprador atender requisitos
+- Financiamento: geralmente disponível apenas para imóveis desocupados
+- Comprador assume débitos de IPTU/condomínio (verificar limites no edital)
+- Sempre verificar matrícula antes de comprar
 """
 
 # ============================================
