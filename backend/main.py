@@ -37,8 +37,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "5519982391622")
 
-GEMINI_MODEL = "gemini-2.0-flash"
-OPENAI_MODEL = "gpt-4o-mini"
+GEMINI_MODEL = "gemini-3-flash"  # Modelo mais recente - melhor qualidade
+OPENAI_MODEL = "gpt-5-mini"       # Fallback - qualidade similar, custo compatível
 
 # API do Arrematador - dados completos dos imóveis
 ARREMATADOR_API_URL = "https://arrematador.cxd.dev:3443/api/properties"
@@ -369,6 +369,9 @@ EXEMPLOS DE RESPOSTAS:
 - Pergunta: "Quando termina a venda?" → Use as datas informadas acima. Se Venda Online, informe a data de término.
 - Pergunta: "Qual o CRECI?" → Informe o CRECI do estado do imóvel e oriente: "Use o botão 'Copiar CRECI' na página para copiar facilmente!"
 - Pergunta: "Como consulto no site da Caixa?" → "Clique no botão laranja 'Consultar imóvel' aqui na página. Você será direcionado para o site oficial da Caixa."
+- Pergunta: "Quero falar com alguém" / "Preciso de ajuda" → "Claro! Nosso especialista pode te ajudar. Clique em 'Tenho dúvidas' ou no WhatsApp para falar com nossa equipe! 📱"
+- Pergunta: "Posso visitar o imóvel?" → "Em regra, não há visitas. Se o imóvel estiver desocupado, pode-se tentar contato com o síndico, mas a Caixa não garante a visita."
+- Pergunta: "Tem vaga de garagem?" → Se garage = 0: "Este imóvel não possui vagas de garagem." Se garage > 0: Informe a quantidade.
 """
 
 
@@ -537,7 +540,10 @@ async def chat(request: ChatRequest):
     
     # 5. Detectar se deve redirecionar para WhatsApp
     # Palavras-chave que indicam que a IA está sugerindo contato humano
-    redirect_keywords = ["especialista", "whatsapp", "atendimento", "nossa equipe", "nosso time"]
+    redirect_keywords = [
+        "especialista", "whatsapp", "atendimento", "nossa equipe", "nosso time",
+        "falar com", "ajudar melhor", "equipe pode", "pode te ajudar"
+    ]
     should_redirect = any(keyword.lower() in resposta.lower() for keyword in redirect_keywords)
     
     # 6. Montar link WhatsApp
