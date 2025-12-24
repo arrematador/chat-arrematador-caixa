@@ -55,7 +55,9 @@ var CONFIG = {
     THEME_COLOR: "#f97316",
     AUTO_OPEN_DESKTOP: true,
     AUTO_OPEN_DELAY: 2000,
-    MOBILE_BREAKPOINT: 768
+    MOBILE_BREAKPOINT: 768,
+    WELCOME_MESSAGE: "Olá! 👋 Sou o assistente virtual do Arrematador Caixa. Como posso ajudar você com este imóvel?",
+    ERROR_MESSAGE: "Desculpe, tive um problema técnico. Por favor, tente novamente ou clique em 'Falar com Especialista' para atendimento humano."
 };
 ```
 
@@ -82,13 +84,14 @@ var CONFIG = {
 ### IA (temperatura 0.3)
 - ✅ Respostas curtas e diretas
 - ✅ Usa apenas dados da página
-- ✅ Nunca gera links
-- ✅ Direciona para WhatsApp quando necessário
+- ✅ NUNCA gera links
+- ✅ Botão WhatsApp aparece dinamicamente quando IA sugere contato
 
 ### Dados Extraídos
 - CHB, título, endereço, cidade, estado
 - Preço, avaliação, desconto
 - Área, quartos, modalidade
+- Data Venda Online, leilões
 - Aceita FGTS/financiamento
 
 ---
@@ -117,6 +120,7 @@ Console do navegador:
 
 | Versão | Data | Mudanças |
 |--------|------|----------|
+| 2.0 | 24/12/2024 | Backend v2.0, Data Venda Online, msgs configuráveis |
 | 1.3 | 23/12/2024 | Prompt direto, temperatura 0.3, sem links |
 | 1.2 | 23/12/2024 | Widget v3 mobile otimizado |
 | 1.1 | 23/12/2024 | Extração expandida de dados |

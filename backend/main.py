@@ -462,15 +462,23 @@ async def chat(request: ChatRequest):
     print(f"[{datetime.now()}] 💬 Resposta ({provider}): {resposta[:80]}...")
     print(f"{'='*60}\n")
     
-    # 5. Montar link WhatsApp
+    # 5. Detectar se deve redirecionar para WhatsApp
+    # Palavras-chave que indicam que a IA está sugerindo contato humano
+    redirect_keywords = ["especialista", "whatsapp", "atendimento", "nossa equipe", "nosso time"]
+    should_redirect = any(keyword.lower() in resposta.lower() for keyword in redirect_keywords)
+    
+    # 6. Montar link WhatsApp
     titulo = api_data.get("name", request.imovel.titulo) if api_data else request.imovel.titulo
     whatsapp_text = f"Olá! Tenho interesse no imóvel {titulo or ''} (CHB: {chb or 'N/A'})"
     whatsapp_link = f"https://wa.me/{WHATSAPP_NUMBER}?text={httpx.QueryParams({'': whatsapp_text}).get('')}"
     
+    if should_redirect:
+        print(f"[{datetime.now()}] 📱 Redirecionando para WhatsApp (keyword detectada)")
+    
     return ChatResponse(
         resposta=resposta,
         provider=provider,
-        redirect_whatsapp=False,
+        redirect_whatsapp=should_redirect,
         whatsapp_link=whatsapp_link.replace("?=", "?text=")
     )
 
