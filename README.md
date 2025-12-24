@@ -163,26 +163,27 @@ WHATSAPP_NUMBER=5519982391622
 
 ## 📝 Changelog
 
-### v2.5 (24/12/2024)
-- ⬆️ Upgrade para **Gemini 3 Flash**
+### v2.5 (24/12/2025)
+- ⬆️ Upgrade para **Gemini 3 Flash Preview** + **GPT-5 mini** (fallback)
 - 📚 FAQ expandido para 400+ linhas
 - 🏢 CRECI dinâmico por estado (27 estados)
 - 📄 Detecção de documentos disponíveis
 - 📅 Data de término para Venda Online
 - 🔗 Orientação sobre botões da interface
 - 🧠 IA responde perguntas sobre processo de leilão
+- 🧪 Script de testes automatizados (20/20 aprovados)
 
-### v2.1 (23/12/2024)
+### v2.1 (23/12/2025)
 - 📱 Botão WhatsApp dinâmico (aparece quando IA sugere)
 - 💬 Welcome message mais autoritativa
 - 🔧 Melhorias no prompt da IA
 
-### v2.0 (22/12/2024)
+### v2.0 (22/12/2025)
 - 🔄 Integração com API Arrematador (dados completos)
 - 📊 Desconto calculado automaticamente
 - 📋 Data Venda Online no prompt
 
-### v1.0 (20/12/2024)
+### v1.0 (20/12/2025)
 - 🚀 Versão inicial
 - 📲 Widget mobile-first
 - 🤖 Gemini 2.0 Flash + GPT-4o-mini fallback
@@ -192,4 +193,4 @@ WHATSAPP_NUMBER=5519982391622
 ## 👨‍💻 Autor
 
 **Tiago Gladstone**  
-Arrematador Caixa - Dezembro 2024
+Arrematador Caixa - Dezembro 2025
