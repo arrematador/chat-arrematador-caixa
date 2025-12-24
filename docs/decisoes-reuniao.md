@@ -45,6 +45,19 @@ O Arrematador Caixa é uma plataforma especializada em leilões de imóveis da C
 6. IA responde baseada no contexto do imóvel
 7. Se necessário, direciona para WhatsApp
 
+## Audios do Bruno(Gestor)
+
+**Áudio 1**
+"Sobre o chat, cara, pô, achei que ficou ótimo e quero fazer um teste com você aqui. Quero fazer só um ajuste na hora de fazer a pergunta, porque tem um botão ali embaixo chamado 'Falar com especialista'. Eu tiraria esse botão 'Falar com especialista', tá? Porque senão o cara vai ficar clicando no botão... chamar... é... chamar especialista.
+
+E eu trataria o... o... o... quando abrir ali, o que que eu colocaria [de] mensagem? Eu vou te falar mais ou menos, mas aí a IA vai... vai aperfeiçoar minha fala. Vou até mandar no outro áudio aqui, até se você quiser colocar pra IA ouvir e... e trazer a fala."
+
+**Áudio 2**
+"'Oi, eu sou a IA X e eu estou aqui pra te ajudar. Eu sei muito sobre esse imóvel e eu posso te ajudar com muitas dúvidas. Caso alguma coisa eu não... caso tenha alguma coisa que eu não saiba, pode ficar tranquilo que eu vou te direcionar pra um... pra um ser humano da equipe.'
+
+Alguma coisa nessa linha, entendeu? Dá autoridade pra IA, pra ela poder fazer o filtro inicial, e... e aí a pessoa só chama caso realmente ela precise ou se a IA não tenha a resposta."
+
+
 ## Próximos Passos
 
 1. ✅ Desenvolver backend com Gemini + OpenAI fallback
@@ -54,3 +67,5 @@ O Arrematador Caixa é uma plataforma especializada em leilões de imóveis da C
 5. ⏳ Deploy no Vercel (frontend)
 6. ⏳ Testar em produção
 7. ⏳ Adicionar tag no site real via GTM
+
+
