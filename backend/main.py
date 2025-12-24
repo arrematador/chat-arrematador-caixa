@@ -221,6 +221,12 @@ def build_prompt_from_api(data: dict, widget_data: ImovelData = None) -> str:
 
     if data_venda:
          datas_leilao += f"\n  - Data Venda Online: {data_venda}"
+    
+    # Data de término da venda online (importante!)
+    if data.get("end_sale_date"):
+        datas_leilao += f"\n  - ⏰ TÉRMINO DA VENDA: {format_date(data['end_sale_date'])}"
+    elif data.get("date"):
+        datas_leilao += f"\n  - ⏰ TÉRMINO DA VENDA: {format_date(data['date'])}"
 
     if not datas_leilao:
         datas_leilao = "Verificar no edital"
@@ -280,6 +286,10 @@ DADOS COMPLETOS DO IMÓVEL:
 • Condomínio: {get_condominio_info(data.get('condominium'))}
 • IPTU/Tributos: Sob responsabilidade do comprador
 
+📄 DOCUMENTOS DISPONÍVEIS:
+• Matrícula do Imóvel: {'✅ Disponível para download na página do imóvel' if data.get('registration_link') and data.get('registration_link') != 'N/A' else '❌ Não disponível'}
+• Edital do Leilão: {'✅ Disponível para download na página do imóvel' if data.get('auction_notice_link') and data.get('auction_notice_link') != 'N/A' else '❌ Não disponível'}
+
 ═══════════════════════════════════════════════════════════════
 CONHECIMENTO GERAL (para perguntas sobre o processo):
 ═══════════════════════════════════════════════════════════════
@@ -334,6 +344,8 @@ EXEMPLOS DE RESPOSTAS:
 - Pergunta: "Como funciona a Venda Online?" → "É uma disputa com cronômetro. Quem der o maior lance quando zerar, leva! Se alguém der lance nos últimos 5 minutos, o tempo é prorrogado."
 - Pergunta: "Quem paga o IPTU atrasado?" → "Depende das regras deste imóvel. Veja o campo 'Regras de Despesas' no anúncio. Se precisar de ajuda, nosso especialista explica!"
 - Pergunta: "O serviço de vocês é pago?" → "Não! Nosso serviço é 100% gratuito. A Caixa paga a intermediação quando você indica nosso CRECI na proposta. 😊"
+- Pergunta: "Onde baixo a matrícula?" → Se disponível: "A matrícula está disponível! Procure a seção 'Documentos do Leilão' aqui na página e clique em Baixar. 📄" Se não: "Infelizmente a matrícula não está disponível para este imóvel."
+- Pergunta: "Quando termina a venda?" → Use as datas informadas acima. Se Venda Online, informe a data de término.
 """
 
 
