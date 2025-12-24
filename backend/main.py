@@ -69,6 +69,7 @@ class ImovelData(BaseModel):
     inscricao: Optional[str] = None
     modalidade: Optional[str] = None
     data_leilao: Optional[str] = None
+    data_venda_online: Optional[str] = None
     aceita_financiamento: Optional[bool] = None
     aceita_fgts: Optional[bool] = None
     aceita_recursos_proprios: Optional[bool] = None
@@ -208,6 +209,12 @@ def build_prompt_from_api(data: dict) -> str:
         datas_leilao += f"\n  - 2º Leilão: {format_date(data['second_auction_date'])} - {format_price(data.get('second_auction_price'))}"
     if data.get("open_bidding_date"):
         datas_leilao += f"\n  - Licitação: {format_date(data['open_bidding_date'])} - Lance mínimo: {format_price(data.get('min_sale_price'))}"
+    
+    # Tratamento para Data Venda Online e Proposta
+    if data.get("proposal_date"):
+        datas_leilao += f"\n  - Data Venda Online: {format_date(data['proposal_date'])}"
+    if data.get("online_sale_date"):
+         datas_leilao += f"\n  - Data Venda Online: {format_date(data['online_sale_date'])}"
     if not datas_leilao:
         datas_leilao = "Verificar no edital"
     
@@ -296,6 +303,7 @@ DADOS DISPONÍVEIS:
 • Título: {imovel.titulo or 'Não informado'}  
 • Cidade: {imovel.cidade or 'Não informado'}
 • Preço: {imovel.preco or 'Ver na página'}
+• Data Venda Online: {imovel.data_venda_online or 'Não informado'}
 
 REGRAS:
 1. Respostas curtas (máx 2 linhas)

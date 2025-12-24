@@ -39,6 +39,7 @@
             inscricao: null,
             modalidade: null,
             data_leilao: null,
+            data_venda_online: null,
             aceita_financiamento: false,
             aceita_fgts: false,
             aceita_recursos_proprios: false,
@@ -141,6 +142,10 @@
         // Data do leilão
         var dataMatch = pageText.match(/(\d{2}\/\d{2}\/\d{4})/);
         if (dataMatch) data.data_leilao = dataMatch[1];
+
+        // Data Venda Online
+        var dataVendaOnlineMatch = pageText.match(/(?:Data\s+Venda\s+Online|Venda\s+Online)[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i);
+        if (dataVendaOnlineMatch) data.data_venda_online = dataVendaOnlineMatch[1];
         
         // Tipo de imóvel
         var tiposImovel = ['Casa', 'Apartamento', 'Terreno', 'Sala Comercial', 'Galpão', 'Loja', 'Prédio', 'Sobrado', 'Flat', 'Kitnet'];
