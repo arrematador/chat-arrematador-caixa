@@ -279,6 +279,21 @@ async def chat(request: ChatRequest):
     Tenta Gemini primeiro, fallback para OpenAI
     """
     
+    # LOG: Ver o que está chegando do widget
+    print(f"\n{'='*60}")
+    print(f"[{datetime.now()}] DADOS RECEBIDOS DO WIDGET:")
+    print(f"CHB: {request.imovel.chb}")
+    print(f"Título: {request.imovel.titulo}")
+    print(f"Preço: {request.imovel.preco}")
+    print(f"Área Privativa: {request.imovel.area_privativa}")
+    print(f"Área Terreno: {request.imovel.area_terreno}")
+    print(f"Quartos: {request.imovel.quartos}")
+    print(f"Descrição: {request.imovel.descricao}")
+    print(f"Financiamento: {request.imovel.aceita_financiamento}")
+    print(f"FGTS: {request.imovel.aceita_fgts}")
+    print(f"Modalidade: {request.imovel.modalidade}")
+    print(f"{'='*60}\n")
+    
     # Constrói o prompt do sistema com dados do imóvel
     system_prompt = build_system_prompt(request.imovel)
     
