@@ -4,221 +4,147 @@ Assistente virtual com IA para páginas de imóveis do site Arrematador Caixa.
 
 ---
 
+## 🚀 Deploy
+
+| Serviço | Plataforma | URL |
+|---------|------------|-----|
+| **Backend** | Render | https://chat-arrematador-caixa.onrender.com |
+| **Frontend** | Vercel | https://chat-arrematador-caixa.vercel.app |
+| **GTM** | Google Tag Manager | GTM-TX46NPP5 |
+
+---
+
 ## 🤖 Modelos de IA
 
 | Modelo | Uso | Custo (1M tokens) |
 |--------|-----|-------------------|
-| **Gemini 3 Flash** | Principal | $0.50 input / $3.00 output |
+| **Gemini 3 Flash Preview** | Principal | $0.50 input / $3.00 output |
 | **GPT-5 mini** | Fallback | $0.25 input / $2.00 output |
 
-### 💰 Estimativa de Custos (Gemini 3 Flash)
+### 💰 Estimativa de Custos
 | Volume | Custo Estimado |
 |--------|----------------|
 | **Por conversa** | ~R$ 0,012 |
 | **1.000 conversas/mês** | ~R$ 12,00 |
 | **10.000 conversas/mês** | ~R$ 120,00 |
 
-> **Nota:** Optamos pelo Gemini 3 Flash para máxima qualidade nas respostas, priorizando conversão sobre economia.
-
 ---
 
 ## 📁 Estrutura
 
 ```
-├── backend/                          # API FastAPI (Render)
-│   ├── main.py                       # Endpoint /chat
+├── backend/                    # API FastAPI → Render
+│   ├── main.py                 # Endpoint /chat + lógica IA
+│   ├── Dockerfile              # Gunicorn + 3 workers
 │   ├── requirements.txt
 │   └── render.yaml
 │
-├── widget/                           # Widget GTM
+├── frontend/                   # Site teste → Vercel
+│
+├── widget/                     # Widget GTM
 │   └── gtm-snippet-es5-v3-mobile.html
 │
-├── frontend/                         # Landing teste (Vercel)
-│   └── index.html
-│
 ├── docs/
-│   ├── decisoes-reuniao.md
-│   └── FAQ/
-│       ├── faq.md                    # Base de conhecimento (400+ linhas)
-│       └── imagens/                  # Guia do Arrematante (42 páginas)
+│   ├── FAQ/faq.md              # Base de conhecimento (400+ linhas)
+│   ├── TESTES.md               # Relatório de testes (20/20 ✅)
+│   └── MENSAGEM-GRUPO.md       # Mensagem de entrega
+│
+└── scripts/
+    └── test_chat.py            # Script de testes automatizados
 ```
 
 ---
 
-## 🚀 URLs de Produção
+## ⚙️ Variáveis de Ambiente (Render)
 
-- **Backend**: https://chat-arrematador-caixa.onrender.com
-- **Frontend**: https://chat-arrematador-caixa.vercel.app
-- **GTM**: GTM-TX46NPP5
-- **WhatsApp**: 5519982391622
+No dashboard do Render → Environment:
+
+| Variável | Valor |
+|----------|-------|
+| `GEMINI_API_KEY` | sua_chave_gemini |
+| `OPENAI_API_KEY` | sua_chave_openai |
+| `WHATSAPP_NUMBER` | 5519982391622 |
+| `GEMINI_MODEL` | gemini-3-flash-preview |
+| `OPENAI_MODEL` | gpt-5-mini |
+
+> **Nota:** Os modelos podem ser trocados sem alterar código!
 
 ---
 
-## ✨ Funcionalidades v2.5
+## 📲 Setup GTM (Site Real)
 
-### 🧠 Base de Conhecimento (FAQ)
-- **400+ linhas** de conhecimento sobre arrematação
-- IA responde sobre **processo de leilão** (não só dados do imóvel)
-- Modalidades de venda (Leilão SFI, Venda Online, Licitação, etc.)
-- Regras de FGTS, financiamento, despesas
+### 1. Adicionar no `<head>`:
+
+```html
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TX46NPP5');</script>
+<!-- End Google Tag Manager -->
+```
+
+### 2. Adicionar após `<body>`:
+
+```html
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TX46NPP5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+```
+
+O chat aparece apenas em páginas `/imovel/*`.
+
+---
+
+## ✨ Funcionalidades
+
+### 🧠 Base de Conhecimento
+- **400+ linhas** de FAQ sobre arrematação
+- Modalidades de venda, FGTS, financiamento, despesas
 - Pós-arrematação, documentação, desocupação
 
-### 🏢 CRECI Dinâmico por Estado
-- Mapeamento automático de CRECI por UF
-- IA informa o CRECI correto para cada imóvel
+### 🏢 CRECI Dinâmico
+- CRECI correto por estado (27 estados)
 - Orienta sobre botão "Copiar CRECI"
 
 ### 📄 Documentos
-- Detecta disponibilidade de Matrícula e Edital
-- Orienta "Procure a seção Documentos do Leilão"
+- Detecta matrícula e edital disponíveis
+- Orienta download na seção "Documentos do Leilão"
 
-### 📅 Datas de Venda
-- Exibe data de término para Venda Online
-- Data da Licitação Aberta
-- Datas de 1º e 2º Leilão
-
-### 🔗 Orientação sobre Botões
-- "Consultar imóvel" (botão laranja → site Caixa)
-- "Copiar CRECI" (facilitar na proposta)
-- "Tenho dúvidas" / WhatsApp
-
-### 📱 Botão WhatsApp Dinâmico
-- Aparece **apenas** quando a IA sugere contato humano
-- Keywords: especialista, whatsapp, nossa equipe, falar com, etc.
+### 📱 WhatsApp Dinâmico
+- Botão aparece quando IA sugere especialista
 - Link personalizado com CHB e nome do imóvel
 
-### 📲 Widget v3 (Mobile-First)
-- ✅ Fullscreen no mobile
-- ✅ Safe area (iPhone notch/home bar)
-- ✅ Touch otimizado (botões 64px)
-- ✅ Auto-open desktop (2s delay)
-- ✅ Extração automática de dados da página
-
 ---
 
-## 📊 O que a IA Sabe Responder
+## 🧪 Testes
 
-### Dados Específicos do Imóvel
-| Dado | Fonte |
-|------|-------|
-| Preço, Desconto, Avaliação | API Arrematador |
-| Área privativa, terreno, total | API Arrematador |
-| Localização, endereço, cidade/UF | API Arrematador |
-| Modalidade (Leilão, Venda Online, etc.) | API Arrematador |
-| Aceita FGTS, Financiamento | API Arrematador |
-| Data da venda/leilão | API Arrematador |
-| Documentos disponíveis (Matrícula, Edital) | API Arrematador |
-| CRECI do estado | Mapeamento interno |
+**Resultado: 20/20 aprovados (100%)**
 
-### Conhecimento Geral (FAQ)
-| Tema | Exemplos |
-|------|----------|
-| Modalidades de Venda | "Como funciona a Venda Online?" |
-| Formas de Pagamento | "Quem paga o IPTU atrasado?" |
-| Serviço Gratuito | "O serviço de vocês é pago?" |
-| Pós-Arrematação | "Qual o prazo do boleto?" |
-| Desocupação | "Vocês ajudam a desocupar?" |
-| Documentação | "Quais documentos preciso?" |
-| Visitação | "Posso visitar o imóvel?" |
-
----
-
-## ⚙️ Configuração do Widget
-
-No arquivo `widget/gtm-snippet-es5-v3-mobile.html`:
-
-```javascript
-var CONFIG = {
-    BACKEND_URL: "https://chat-arrematador-caixa.onrender.com",
-    WHATSAPP_NUMBER: "5519982391622",
-    THEME_COLOR: "#f97316",
-    AUTO_OPEN_DESKTOP: true,
-    AUTO_OPEN_DELAY: 2000,
-    MOBILE_BREAKPOINT: 768,
-    WELCOME_MESSAGE: "Olá! 👋 Eu sou a assistente virtual...",
-    ERROR_MESSAGE: "Desculpe, tive um problema técnico..."
-};
-```
-
----
-
-## 📲 Setup GTM
-
-1. **Tags** → Nova → HTML Personalizado
-2. Colar código de `widget/gtm-snippet-es5-v3-mobile.html`
-3. **Acionador**: Page Path contém `/imovel/`
-4. Publicar
-
----
-
-## 🔧 Variáveis de Ambiente
-
-```bash
-# Obrigatórias
-GEMINI_API_KEY=***
-OPENAI_API_KEY=***
-
-# Opcionais (com defaults)
-WHATSAPP_NUMBER=5519982391622
-GEMINI_MODEL=gemini-3-flash-preview
-OPENAI_MODEL=gpt-5-mini
-```
-
----
-
-## 🐳 Deploy com Docker (Alta Performance)
-
-```bash
-# 1. Clonar e entrar no diretório
-git clone https://github.com/arrematador/chat-arrematador-caixa.git
-cd chat-arrematador-caixa
-
-# 2. Criar .env
-cp .env.example .env
-# Editar .env com as API keys
-
-# 3. Subir com docker-compose
-docker-compose up -d --build
-
-# 4. Ver logs
-docker-compose logs -f
-```
-
-### Performance (4 workers Gunicorn)
-| Métrica | Valor |
-|---------|-------|
-| **Concurrency** | ~40 requisições simultâneas |
-| **RAM** | ~512MB-2GB |
-| **CPU** | 2 cores recomendado |
+Ver relatório completo: [docs/TESTES.md](docs/TESTES.md)
 
 ---
 
 ## 📝 Changelog
 
 ### v2.5 (24/12/2025)
-- ⬆️ Upgrade para **Gemini 3 Flash Preview** + **GPT-5 mini** (fallback)
-- 📚 FAQ expandido para 400+ linhas
-- 🏢 CRECI dinâmico por estado (27 estados)
-- 📄 Detecção de documentos disponíveis
-- 📅 Data de término para Venda Online
-- 🔗 Orientação sobre botões da interface
-- 🧠 IA responde perguntas sobre processo de leilão
-- 🧪 Script de testes automatizados (20/20 aprovados)
-
-### v2.1 (23/12/2025)
-- 📱 Botão WhatsApp dinâmico (aparece quando IA sugere)
-- 💬 Welcome message mais autoritativa
-- 🔧 Melhorias no prompt da IA
+- ⬆️ **Gemini 3 Flash Preview** + **GPT-5 mini**
+- 📚 FAQ expandido (400+ linhas)
+- 🏢 CRECI dinâmico por estado
+- 📄 Detecção de documentos
+- ⚙️ Modelos configuráveis via env vars
+- 🧪 Script de testes automatizados
+- 🐳 Gunicorn com 3 workers (~30 chats simultâneos)
 
 ### v2.0 (22/12/2025)
-- 🔄 Integração com API Arrematador (dados completos)
+- 🔄 Integração com API Arrematador
 - 📊 Desconto calculado automaticamente
-- 📋 Data Venda Online no prompt
 
 ### v1.0 (20/12/2025)
 - 🚀 Versão inicial
 - 📲 Widget mobile-first
-- 🤖 Gemini 2.0 Flash + GPT-4o-mini fallback
 
 ---
 
