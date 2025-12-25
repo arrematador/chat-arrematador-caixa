@@ -37,8 +37,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "5519982391622")
 
-GEMINI_MODEL = "gemini-3-flash-preview"  # Modelo mais recente (Dez 2025)
-OPENAI_MODEL = "gpt-5-mini"               # Fallback (Ago 2025)
+# Modelos de IA (configuráveis via env)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 
 # API do Arrematador - dados completos dos imóveis
 ARREMATADOR_API_URL = "https://arrematador.cxd.dev:3443/api/properties"

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  chat-api:
+    build: ./backend
+    container_name: arrematador-chat-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - WHATSAPP_NUMBER=${WHATSAPP_NUMBER:-5519982391622}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3-flash-preview}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5-mini}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Para rodar:
+# 1. Criar arquivo .env com GEMINI_API_KEY e OPENAI_API_KEY
+# 2. docker-compose up -d --build
+# 3. Ver logs: docker-compose logs -f

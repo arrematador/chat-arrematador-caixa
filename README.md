@@ -151,13 +151,45 @@ var CONFIG = {
 
 ---
 
-## 🔧 Variáveis de Ambiente (Render)
+## 🔧 Variáveis de Ambiente
 
 ```bash
+# Obrigatórias
 GEMINI_API_KEY=***
 OPENAI_API_KEY=***
+
+# Opcionais (com defaults)
 WHATSAPP_NUMBER=5519982391622
+GEMINI_MODEL=gemini-3-flash-preview
+OPENAI_MODEL=gpt-5-mini
 ```
+
+---
+
+## 🐳 Deploy com Docker (Alta Performance)
+
+```bash
+# 1. Clonar e entrar no diretório
+git clone https://github.com/arrematador/chat-arrematador-caixa.git
+cd chat-arrematador-caixa
+
+# 2. Criar .env
+cp .env.example .env
+# Editar .env com as API keys
+
+# 3. Subir com docker-compose
+docker-compose up -d --build
+
+# 4. Ver logs
+docker-compose logs -f
+```
+
+### Performance (4 workers Gunicorn)
+| Métrica | Valor |
+|---------|-------|
+| **Concurrency** | ~40 requisições simultâneas |
+| **RAM** | ~512MB-2GB |
+| **CPU** | 2 cores recomendado |
 
 ---
 
